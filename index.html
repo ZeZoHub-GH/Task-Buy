@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <style>
+        /* Instantly makes the background pitch black to prevent any white flashing */
+        html, body {
+            background-color: #000000;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        a {
+            color: #00a8ff;
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            // ENTER YOUR DESTINATION URLS HERE:
+            const pcUrl          = "https://your-pc-site.com";
+            const tabletUrl      = "https://your-tablet-site.com";
+            const smartphoneUrl  = "https://your-smartphone-site.com";
+
+            // Combined detection (User-Agent + screen width for maximum accuracy)
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            const width = window.innerWidth;
+
+            // 1. Smartphone detection
+            if (/android/i.test(userAgent) && width < 768) {
+                window.location.href = smartphoneUrl;
+            } 
+            else if (/iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                window.location.href = smartphoneUrl;
+            } 
+            // 2. Tablet detection (iPads, Android tablets, or landscape smartphones)
+            else if (/iPad/.test(userAgent) || (/android/i.test(userAgent) && width >= 768) || (width >= 768 && width <= 1024)) {
+                window.location.href = tabletUrl;
+            } 
+            // 3. PC / Desktop / Laptop (Fallback for everything else)
+            else {
+                window.location.href = pcUrl;
+            }
+        };
+    </script>
+</head>
+<body>
+    <!-- Fallback text in case the redirect takes a moment or is blocked by the browser -->
+    <div style="text-align: center; font-size: 14px; opacity: 0.7;">
+        Redirecting... If you are not redirected automatically, 
+        <a href="https://your-pc-site.com">click here</a>.
+    </div>
+</body>
+</html>
