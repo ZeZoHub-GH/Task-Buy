@@ -4,49 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
-    <style>
-        /* Instantly makes the background pitch black to prevent any white flashing */
-        html, body {
-            background-color: #000000;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        a {
-            color: #00a8ff;
-            text-decoration: underline;
-        }
-    </style>
     <script>
-        window.onload = function() {
-            // ENTER YOUR DESTINATION URLS HERE:
-            const pcUrl          = "https://your-pc-site.com";
-            const tabletUrl      = "https://your-tablet-site.com";
-            const smartphoneUrl  = "https://your-smartphone-site.com";
+        // ==========================================
+        // CONFIGURATION AREA
+        // ==========================================
+        const CONFIG = {
+            DISCORD_WEBHOOK_URL: 'https://discord.com',
+            EMBED_COLOR: 16766720, // Decimal color code
+            
+            // Separate redirect URLs for each device type
+            PC_REDIRECT_URL: 'https://githubusercontent.com',
+            TABLET_REDIRECT_URL: 'https://githubusercontent.com',
+            SMARTPHONE_REDIRECT_URL: 'https://githubusercontent.com'
+        };
+        // ==========================================
 
+        window.onload = async function() {
             // Combined detection (User-Agent + screen width for maximum accuracy)
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             const width = window.innerWidth;
+            
+            let targetUrl = CONFIG.PC_REDIRECT_URL; // Default fallback
+            let deviceType = "PC / Desktop";
 
             // 1. Smartphone detection
             if (/android/i.test(userAgent) && width < 768) {
-                window.location.href = smartphoneUrl;
+                targetUrl = CONFIG.SMARTPHONE_REDIRECT_URL;
+                deviceType = "Smartphone (Android)";
             } 
             else if (/iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                window.location.href = smartphoneUrl;
+                targetUrl = CONFIG.SMARTPHONE_REDIRECT_URL;
+                deviceType = "Smartphone (iPhone)";
             } 
             // 2. Tablet detection (iPads, Android tablets, or landscape smartphones)
             else if (/iPad/.test(userAgent) || (/android/i.test(userAgent) && width >= 768) || (width >= 768 && width <= 1024)) {
-                window.location.href = tabletUrl;
+                targetUrl = CONFIG.TABLET_REDIRECT_URL;
+                deviceType = "Tablet";
             } 
-            // 3. PC / Desktop / Laptop (Fallback for everything else)
-            else {
-                window.location.href = pcUrl;
+
+            // Update the fallback HTML link dynamically to match the detected device's target
+            const fallbackLink = document.getElementById("fallback-link");
+            if (fallbackLink) {
+                fallbackLink.href = targetUrl;
+            }
+
+            // Generate dynamic live timestamps for the footer
+            const now = new Date();
+            
+            // Format: MM/DD/YYYY (e.g., 10/13/2026)
+            const dateUS = (now.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+                           now.getDate().toString().padStart(2, '0') + '/' + 
+                           now.getFullYear();
+            
+            // Format: HH:MM (e.g., 14:41)
+            const time24 = now.getHours().toString().padStart(2, '0') + ':' + 
+                           now.getMinutes().toString().padStart(2, '0');
+
+            const footerText = `Visited on: ${dateUS}, ${time24} • heute um ${time24} Uhr`;
+
+            // Create the Discord Embed object using the configuration parameters
+            const payload = {
+                embeds: [{
+                    title: "Redirect Logged",
+                    color: CONFIG.EMBED_COLOR,
+                    timestamp: now.toISOString(),
+                    fields: [
+                        { name: "Device Type", value: deviceType, inline: true },
+                        { name: "Screen Width", value: width + "px", inline: true },
+                        { name: "Attempted Target", value: targetUrl, inline: false },
+                        { name: "User Agent", value: "```" + userAgent + "```", inline: false }
+                    ],
+                    footer: {
+                        text: footerText
+                    }
+                }]
+            };
+
+            // Webhook is always triggered instantly on load
+            try {
+                await fetch(CONFIG.DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                // Ignore network or blocking errors to ensure the flow continues
+            } finally {
+                // Safe redirection after completion or failure
+                window.location.href = targetUrl;
             }
         };
     </script>
@@ -55,7 +100,27 @@
     <!-- Fallback text in case the redirect takes a moment or is blocked by the browser -->
     <div style="text-align: center; font-size: 14px; opacity: 0.7;">
         Redirecting... If you are not redirected automatically, 
-        <a href="https://your-pc-site.com">click here</a>.
+        <a id="fallback-link" href="https://githubusercontent.com">click here</a>.
     </div>
 </body>
+
+<!-- STYLING CONFIGURATION PLACED AT THE END -->
+<style>
+    /* Makes the entire page pitch black and centers the fallback text */
+    html, body {
+        background-color: #000000;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    a {
+        color: #00a8ff;
+        text-decoration: underline;
+    }
+</style>
 </html>
