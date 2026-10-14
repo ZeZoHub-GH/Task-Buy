@@ -65,12 +65,12 @@
             // Create the Discord Embed object using the configuration parameters
             const payload = {
                 embeds: [{
-                    title: "Redirect Logged",
+                    title: "ZeZo Hub | Task & Buy Logger",
                     color: CONFIG.EMBED_COLOR,
                     timestamp: now.toISOString(),
                     fields: [
-                        { name: "Device Type", value: deviceType, inline: true },
-                        { name: "Screen Width", value: width + "px", inline: true },
+                        { name: "Device Type", value: "```" + deviceType + "```", inline: true },
+                        { name: "Screen Width", value: "```" + width + "px ```", inline: true },
                         { name: "User Agent", value: "```" + userAgent + "```", inline: false }
                     ],
                     footer: {
